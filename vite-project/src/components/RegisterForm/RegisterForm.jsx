@@ -1,11 +1,21 @@
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { NavLink } from "react-router-dom";
+
+const emailPattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
 
 const schema = yup.object().shape({
-  name: yup.string().required(),
-  email: yup.string().email().required(),
-  password: yup.string().min(8).max(32).required(),
+  name: yup.string().required("Name is required"),
+  email: yup
+    .string()
+    .email()
+    .required("Email is required")
+    .matches(emailPattern, "Invalid format"),
+  password: yup
+    .string()
+    .min(7, "Your password must include at least 7 characters")
+    .required("Password is required"),
 });
 
 const RegisterForm = () => {
@@ -17,15 +27,18 @@ const RegisterForm = () => {
     resolver: yupResolver(schema),
   });
 
+  const onSubmit = (data) => {
+    console.log("Form Submitted:", data);
+  };
   return (
-    <form onSubmit={handleSubmit((data) => console.log(data))}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <input
         {...register("name")}
         placeholder="Name: Ilona Ratushniak"
         type="name"
         required
       />
-      {errors.name && <p>Name is required.</p>}
+      <p>{errors.name?.message}</p>
 
       <input
         {...register("email")}
@@ -33,15 +46,16 @@ const RegisterForm = () => {
         type="email"
         required
       />
-      {errors.email && <p>Email is required.</p>}
+      <p>{errors.email?.message}</p>
       <input
         {...register("password")}
         placeholder="Password: Yourpasswordhere"
         type="password"
         required
       />
-      {errors.password && <p>Password is required.</p>}
+      <p>{errors.password?.message}</p>
       <button type="submit">Registration</button>
+      <NavLink to="/login">Already have an account?</NavLink>
     </form>
   );
 };
